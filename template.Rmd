@@ -1,21 +1,51 @@
 ---
-title: "Simple document"
-output: html_document
+title: "Data Import"
+output: github_document
 ---
 
-I'm an R Markdown document! 
-
-# Section 1
-
-Here's a **code chunk** that samples from 
-a _normal distribution_:
-
 ```{r}
-samp = rnorm(100)
-length(samp)
+library(tidyverse)
+#readr is part of tidyverse
 ```
 
-# Section 2
 
-I can take the mean of the sample, too!
-The mean is `r mean(samp)`.
+Let's import a dataset. 
+
+```{r}
+litters_df = 
+  read_csv("data/FAS_litters.csv")
+
+#dont use read.csv it is not as good as read_csv
+```
+
+Always look at your data
+
+```{r}
+names(litters_df)
+```
+
+Accessing variable names that have spaces in it is very hard. 
+So update the names in `litter_df`.
+
+```{r}
+litters_df=
+  janitor::clean_names(litters_df)
+
+#this makes everything snakecase. snake case makes it easier to use variable names in code
+```
+
+
+Look at the data. Most frequent thing jeff does is print the data and view the data set (from console) 
+
+```{r}
+litters_df
+#<dbl> means that it is a double numeric value
+#you can use (view litters_df in console to get a pop up of dataset)
+```
+
+
+Sometimes skimming data is neat?
+```{r}
+skimr::skim(litters_df)
+```
+
