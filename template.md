@@ -18,6 +18,10 @@ library(tidyverse)
 
 ``` r
 #readr is part of tidyverse
+library(readxl)
+library(haven)
+
+#write in console ?read_excel if you want to open the help page for a function 
 ```
 
 Let’s import a dataset.
@@ -177,4 +181,48 @@ pups_df=
 
 pups_df=
   janitor::clean_names(pups_df)
+```
+
+\#New File Formats CSVs are really great, but sometimes you get excel
+files
+
+``` r
+mlb_df=
+  read_excel("data/mlb11.xlsx")
+```
+
+Import Lord of the Rings word count
+
+``` r
+fellowship_rings_df =
+  read_excel("data/LotR_Words.xlsx", range = "B3:D6")
+
+#helpful if you only want to import only a certain range of data
+```
+
+\#Import SAS files
+
+But seriously never do it. Save everything as CSV.
+
+``` r
+pulse_df =
+  read_sas("data/public_pulse_data.sas7bdat") 
+
+pulse_df = 
+  janitor::clean_names(pulse_df)
+
+#in this ase janitor picks up on the fact that BDI is a prefix for a lot of coliumns. So, it lowercases it and addes a _ between bdi and score. 
+```
+
+\#Why does Jeff hate read.csv so much?
+
+read.csv is the base r function. It will print out the first 1000 rows
+of the dataset. It doesnt tell you how many rows and columns or variable
+type. AKA IT IS UGLY
+
+``` r
+litters_df_base = 
+  read.csv("data/FAS_litters.csv")
+
+#eval = FALSE doesnt show the output 
 ```
