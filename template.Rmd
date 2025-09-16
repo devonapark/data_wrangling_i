@@ -130,3 +130,13 @@ litters_df_base =
 #eval = FALSE doesnt show the output 
 ```
 
+
+#What about data exporting
+
+Use `write_csv` rather than `read_csv`
+
+```{r}
+write_csv(fellowship_rings_df,"data/fellowship_rings_df.csv")
+
+#write_csv(dataframe you want to print, location you want to save it/name of file)
+```
