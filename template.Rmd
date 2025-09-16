@@ -16,6 +16,7 @@ litters_df =
   read_csv("data/FAS_litters.csv")
 
 #dont use read.csv it is not as good as read_csv
+#by default read_csv assumes first row is header
 ```
 
 Always look at your data
@@ -48,4 +49,36 @@ Sometimes skimming data is neat?
 ```{r}
 skimr::skim(litters_df)
 ```
+
+
+Check your data in your original CSV file to make sure you imported it correctly. 
+When we go to CSV, we see that  `gd0_weight` and `gd18_weight` have periods in some of the blank cells. That is why column is read as a `<char>` not a number. 
+
+So we need to fix the missingness. 
+
+```{r}
+litters_df=
+  read_csv("data/FAS_litters.csv", na = c("NA", ".", ""))
+
+#now when we run litters_df we will see that `gd0_weight` and `gd18_weight` is now <dbl> not <char>
+```
+
+
+#Import Pups Data
+Now import FAS_pups.csv dataset 
+  Why it might be helpful to skip the first ten lines: 
+  
+```{r}
+pups_df=
+  read_csv("data/FAS_pups.csv", 
+           skip = 3,
+           na = c("NA", ".", "")
+           )
+
+# skip allows you to skip rows 
+
+pups_df=
+  janitor::clean_names(pups_df)
+```
+
 
