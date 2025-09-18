@@ -25,3 +25,73 @@ pups_df=
     janitor::clean_names(pups_df)
 ```
 
+## Select
+
+`select`  selects variables from a dataframe
+
+Select Specific Variables
+```{r}
+select(litters_df, group, litter_number, gd0_weight)
+```
+
+Select a range of variables 
+```{r}
+select(litters_df, group:gd_of_birth)
+```
+
+Select by Removal
+```{r}
+select(litters_df, -group)
+select(litters_df, -(group:gd_of_birth))
+```
+
+Select by prefix (`starts_with` is what he uses most often, but there also `ends_with` or `contains`)
+```{r}
+select(litters_df, group, starts_with("gd"))
+```
+
+Rearrange by selecting.
+
+What comes first in the command is what is going to come first in the output. 
+```{r}
+select(litters_df, starts_with("gd"), group)
+select(litters_df, litter_number, everything())
+#^second command outputs litternumber first and then outputs everything first
+
+relocate(litters_df, litter_number)
+#this does the exact same thing as command two in this section
+```
+
+Rename by selecting
+```{r}
+select(litters_df, GROUP = group, everything())
+#GROUP is the new name for group
+rename(litters_df, GROUP = group)
+#Also does the same thing
+```
+
+What if I only select one variable...?
+```{r}
+select(litters_df, group)
+#this is not a vector. It is still a dataframe. Unlike what pull() produces...
+
+pull(litters_df, group)
+#he hardly ever ues pull (pulling something out of a dataframe)
+#pull produces a vector
+
+```
+
+Theoretically you can do something like `litters_df$group` which pulls the variable out of the dataframe. But this is a clunky, BAD FORM OF CODING
+
+### Learning Assessment 
+
+```{r}
+select(pups_df, litter_number:pd_ears)
+
+#Alternatively you can do:
+select(pups_df, litter_number, sex, pd_ears)
+```
+
+
+
+
