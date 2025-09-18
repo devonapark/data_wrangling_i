@@ -25,7 +25,7 @@ pups_df=
     janitor::clean_names(pups_df)
 ```
 
-## Select
+## `select()`
 
 `select`  selects variables from a dataframe
 
@@ -93,7 +93,7 @@ select(pups_df, litter_number, sex, pd_ears)
 ```
 
 
-## `filter`
+## `filter()`
 
 Use `filter()` to filter out rows
 ```{r}
@@ -141,6 +141,19 @@ filter(pups_df, pd_walk < 11, ,sex == 2)
 ```
 
 
+## `mutate()`
+
+use `mutate()`to create or modify variables 
+
+```{r}
+mutate(
+  litters_df,
+  wt_gain = gd18_weight - gd0_weight,
+   group = str_to_lower(group)
+)
+
+#str_to_lower updates group variable to make everything lower case
+```
 
 
 
