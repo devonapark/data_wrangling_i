@@ -156,8 +156,98 @@ mutate(
 ```
 
 
+## `arrange()`
+
+`arrange()` arranges things ....lol
+
+```{r}
+arrange(litters_df,pups_born_alive)
+arrange(litters_df, group, pups_born_alive)
+#can nest the sorting
+
+arrange(litters_df, desc(group), pups_born_alive)
+#desc() switches the order from ascending to descending. Default is ascending order
+#^in this example, group will take priority and be sort by descending order first and then pups_born_alive will be sorted next by ascending order
+
+#NA values will go at the bottom regardless of if you sort asc. or desc.
+```
 
 
+## PIPES!!
+
+First, look at a VERY bad way of doing things
+
+```{r}
+#THIS IS A SUPER CLUNKY. DONT DO THIS!
+litters_df =
+  read_csv("data/FAS_litters.csv", na = c("NA", ".", ""))
+
+litters_df =
+  janitor::clean_names(litters_df)
+
+litters_df = 
+  seelct(litters_df, group, litter_number, starts_with("gd"))
+
+litters_df = 
+  drop_na(litters_df)
+
+litters_df = 
+  mutate(
+    litters_Df,
+    wt_gain = gd18_weight - gd0_weight
+  )
+```
+
+
+Another way of doing this super poorly 
+
+```{r}
+#THIS IS A SUPER CLUNKY. DONT DO THIS!
+litters_df = 
+  mutate(
+    drop_na(
+      seelct(
+        janitor::clean_names(
+          read_csv("data/FAS_litters.csv", na = c("NA", ".", ""))), 
+          group, litter_number, starts_with("gd"))),
+    wt_gain = gd18_weight - gd0_weight
+  )
+```
+
+Use pipes to avoid all of this:
+
+Use command + shift + M to get pipe operator
+
+```{r}
+litters_df =
+  read_csv("data/FAS_litters.csv", na = c("NA", ".", "")) |> 
+  janitor::clean_names() |> 
+  select(group, litter_number, starts_with("gd")) |> 
+  drop_na() |> 
+  mutate(
+    wt_gain = gd18_weight - gd0_weight
+  )
+
+#with this form, you dont need to keep writing litters_df. For example, with select() you dont need to reference litters_df before you say what variables you want to select. 
+#if you want to see the output before creating the df, run everything inside (after litters_df=) to get the output as you go
+```
+
+
+## Learning Assessment 3
+
+```{r}
+pups_df = 
+  read_csv("data/FAS_pups.csv", skip = 3,na = c("NA", ".", "")) |> 
+  janitor::clean_names() |> 
+  filter(sex == 1) |> 
+  select(-pd_ears) |> 
+  mutate(
+    pivot_ge7 = pd_pivot >= 7
+  )
+
+#Sometimes steps can go in any other. But sometimes order matters. For example, you cannot do select(-pd_ears)  before janitor::clean_names() because until janitor::clean_names() happens, pd_ears does not exist. (Recall, in the original data file, the variable name has spaces and janitor converts names to snake case)
+  
+```
 
 
 
