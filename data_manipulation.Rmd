@@ -249,7 +249,13 @@ pups_df =
   
 ```
 
+To make a linear model:
 
+```{r}
+lm(wt_gain ~ gd_of_birth, data = litters_df)
+
+#one example in where tidyverse command puts df NOT at the very front 
+```
 
 
 
