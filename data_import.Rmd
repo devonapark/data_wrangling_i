@@ -1,0 +1,142 @@
+---
+title: "Data Import"
+output: github_document
+---
+
+```{r}
+library(tidyverse)
+#readr is part of tidyverse
+library(readxl)
+library(haven)
+
+#write in console ?read_excel if you want to open the help page for a function 
+```
+
+
+Let's import a dataset. 
+
+```{r}
+litters_df = 
+  read_csv("data/FAS_litters.csv")
+
+#dont use read.csv it is not as good as read_csv
+#by default read_csv assumes first row is header
+```
+
+Always look at your data
+
+```{r}
+names(litters_df)
+```
+
+Accessing variable names that have spaces in it is very hard. 
+So update the names in `litter_df`.
+
+```{r}
+litters_df=
+  janitor::clean_names(litters_df)
+
+#this makes everything snakecase. snake case makes it easier to use variable names in code
+```
+
+
+Look at the data. Most frequent thing jeff does is print the data and view the data set (from console) 
+
+```{r}
+litters_df
+#<dbl> means that it is a double numeric value
+#you can use (view litters_df in console to get a pop up of dataset)
+```
+
+
+Sometimes skimming data is neat?
+```{r}
+skimr::skim(litters_df)
+```
+
+
+Check your data in your original CSV file to make sure you imported it correctly. 
+When we go to CSV, we see that  `gd0_weight` and `gd18_weight` have periods in some of the blank cells. That is why column is read as a `<char>` not a number. 
+
+So we need to fix the missingness. 
+
+```{r}
+litters_df=
+  read_csv("data/FAS_litters.csv", na = c("NA", ".", ""))
+
+#now when we run litters_df we will see that `gd0_weight` and `gd18_weight` is now <dbl> not <char>
+```
+
+
+#Import Pups Data
+Now import FAS_pups.csv dataset 
+  Why it might be helpful to skip the first ten lines: 
+  
+```{r}
+pups_df=
+  read_csv("data/FAS_pups.csv", 
+           skip = 3,
+           na = c("NA", ".", "")
+           )
+
+# skip allows you to skip rows 
+
+pups_df=
+  janitor::clean_names(pups_df)
+```
+
+
+#New File Formats 
+CSVs are really great, but sometimes you get excel files 
+
+```{r}
+mlb_df=
+  read_excel("data/mlb11.xlsx")
+```
+
+
+Import Lord of the Rings word count 
+
+```{r}
+fellowship_rings_df =
+  read_excel("data/LotR_Words.xlsx", range = "B3:D6")
+
+#helpful if you only want to import only a certain range of data
+```
+
+
+#Import SAS files
+
+But seriously never do it. Save everything as CSV. 
+```{r}
+pulse_df =
+  read_sas("data/public_pulse_data.sas7bdat") 
+
+pulse_df = 
+  janitor::clean_names(pulse_df)
+
+#in this ase janitor picks up on the fact that BDI is a prefix for a lot of coliumns. So, it lowercases it and addes a _ between bdi and score. 
+```
+
+
+#Why does Jeff hate read.csv so much?
+
+read.csv is the base r function. It will print out the first 1000 rows of the dataset. It doesnt tell you how many rows and columns or variable type. AKA IT IS UGLY
+
+```{r, eval = FALSE}
+litters_df_base = 
+  read.csv("data/FAS_litters.csv")
+
+#eval = FALSE doesnt show the output 
+```
+
+
+#What about data exporting
+
+Use `write_csv` rather than `read_csv`
+
+```{r}
+write_csv(fellowship_rings_df,"data/fellowship_rings_df.csv")
+
+#write_csv(dataframe you want to print, location you want to save it/name of file)
+```
