@@ -4,11 +4,6 @@ output: github_document
 date: "2025-09-24"
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-#literally what does this mean
-```
-
 # Kale's Class on Tidy!
 
 ```{r}
@@ -27,35 +22,37 @@ pulse_df =
   janitor::clean_names() |> 
   pivot_longer(
     cols = bdi_score_bl:bdi_score_12m,
-   #identifies the columns that we want to pivot, then below we want to rename the column, with a descriptor of what are these data telling us?
-   names_to = "visit",
-   values_to = "bdi_score",
-   names_prefix = "bdi_score_"
-  ) |> 
-#change [visit]=bl to a months value using mutate
-mutate(visit = replace(visit, visit == "bl", "00m")) |> 
+    names_to = "visit",
+    values_to = "bdi_score",
+    names_prefix = "bdi_score_"
+    ) |> 
+  mutate(visit = replace(visit, visit == "bl", "00m")) |> 
+  mutate(bdi_score = round(bdi_score,2)) |> 
+  relocate(id, visit)
 
-#A purely cosmetic action :) -> put ID first
+#pivot_longer() "cols =" identifies the columns that we want to pivot, then use "names_to" to rename the column, with a descriptor of what are these data telling us? and "values_to" to name the second column we are creating. 
 
-relocate(id, visit)
+#names_prefix() removes whatever is in the "" from the newly made [visit] column
 
+#mutate() --> change [visit]=bl to a months value using mutate
+
+#round() within mutate() to shorten # of decimals that are printed in the bmi_score column --> visually makes it nicer to look at.
+
+#relocate() --> a purely cosmetic action :) -> puts ID first
 ```
 Comments while creating our df:
 
 first thing you'll notice is that youre data has a lot more rows (it's a lot longer). Instead of one row per ID, we have 4 
 
-so basically we created a column that contains the original values in that first header rower that contained bdi_score_bl:bdi_score_12m, and we created a column that contained the values associated with each score. 
+When using pivot_longer, basically we created a column that contains the original values in that first header row that contained values of bdi_score_bl:bdi_score_12m, and we created an additional column that contained the values associated with each score. 
 
-`r values_to` almost always with a long transformation youll get big values in the visit/time variable because youll get these time values into a string whcih is why you use `names_prefix`. Check what visit column values look like now
+When using `r values_to` almost always with a long transformation youll get big values in the visit/time variable/column transformation because you're getting these time values into a string. So, use `names_prefix` if there is an easy pattern to remove the bulk. Check what visit column values look like before and after this step by running only parts of the code at a time.
 
 
 ### Let's do one more example
 Notes:
 when you are using `r read_csv` and are importing data, and setting a data path, you can use tab to get the file name easily!
 
-`r case_match` --> there are a bunch of things that do this, but for this function you give it a variable, and then you give it a list of values of the old variable and then the new value that you want to replace it with using a tilda. 
-
-`r case_when` similar to `r case_match` better for several variables or for more complicated scenarios (you can use boolean questions and depending on the responses you can change the values)
 
 ```{r}
 litters_df =
@@ -66,17 +63,20 @@ litters_df =
     names_to = "gd_time",
     values_to = "Weight"
   ) |> 
-  
-  #change values within gd_time
-  
   mutate(gd_time = case_match(
     gd_time,
     "gd0_weight" ~ 0,
     "gd18_weight" ~ 18
-  ))
+    ))
 
-
+#mutate() + case_match --> change values within gd_time
 ```
+`r case_match` --> there are a bunch of things that do this, but for this function you give it a variable, and then you give it a list of values of the old variable and then the new value that you want to replace it with using a tilda. 
+
+`r case_when` similar to `r case_match` better for several variables or for more complicated scenarios (you can use boolean questions and depending on the responses you can change the values)
+
+
+
 
 ## Pivot Wider
 
@@ -96,14 +96,105 @@ Pivot wider for human readablility
 analysis_df |> 
 pivot_wider(
   names_from = time,
-  values_from = mean
-) |> 
-  knitr::kable() #this line creates a nicer looking table
+  values_from = mean)|> 
+  knitr::kable() 
 
-#looking at the output is much easier this way as a human. So is Looking at a difference or finding a trend
+#knitr::kable() creates a nicer looking table (in console but mainly upon knitting)
 
-#using the pipe function like this creates an output without officially creating an actual dataframe
+#looking at the output in a wide table is much easier as a human. So is computing a difference or finding a trend
+
+#using the pipe function (see first line) like this creates an output without officially creating an actual dataframe
 ```
+
+
+## Combining Data Sets
+
+You have data sets of a similar structures and you want to stack them together
+
+```{r}
+fellowship_ring =
+  read_excel("data/LotR_Words.xlsx", range = "B3:D6") |> 
+  mutate(movie = "fellowship_ring")
+
+two_towers =
+  read_excel("data/LotR_Words.xlsx", range = "F3:H6") |> 
+  mutate(movie = "two_towers")
+
+return_king =
+  read_excel("data/LotR_Words.xlsx", range = "J3:L6") |> 
+  mutate(movie = "return_king")
+
+#ideally you should not be copying and pasting --> in the future we'll learn functions to do this teeehee
+```
+
+Because they have the same variables we can easily stack these dfs on top of one another using `r bind_rows`
+
+```{r}
+lotr_df = 
+  bind_rows(fellowship_rings, two_towers, Return_of_king) |> 
+  #If we were stop at this point, our data would be super untidy 
+  janitor::clean_names() |> 
+  pivot_longer(
+    cols = female:male,
+    names_to = "sex",
+    values_to = "words"
+  ) |> 
+  relocate(movie) |> 
+  mutate(race = str_to_lower(race))
+
+
+
+```
+
+## Join FAS datasets 
+
+Using a unique ID to make sure observations match one another
+
+#### Import `r litters` data set
+```{r}
+litters_df=
+  read_csv("data/FAS_litters.csv", na = c("NA", ".", "")) |> 
+  janitor::clean_names() |> 
+  mutate(wt_gain = gd18_weight - gd0_weight) |> 
+  separate(
+    group, into = c("dose","day_of_treatment"), sep = 3
+  )
+
+
+#separate() --> Tidy-fy [group] variable. create two variables: one that identifies group # and one that categorizes (con, low, mod) 
+```
+Note: `r separate()` takes the variable you want to separate, [ into = ] by writing the names of the new variables you are creating) and then [sep = ] how you are separating (by what delimiter or index you want to split by). 
+
+In our case, we are separating after the 3rd character. You could put a comma here or a different delimiter. Something that acts in a repeatable pattern.
+
+##### Import `r pups` next
+```{r}
+pups_df=
+  read_csv("data/FAS_pups.csv", skip = 3, na = c("NA", ".", "")) |> 
+  janitor::clean_names() |> 
+  mutate(sex = case_match(
+    sex,
+    1 ~ "male",
+    2 ~ "female"
+  ))
+```
+
+Note: we are told 1 is male and 2 is female
+
+## Join by liter number 
+
+```{r}
+fas_df = 
+  left_join(pups_df, litters_df, by = "litter_number") |> 
+  relocate(litter_number, dose, day_of_treatment)
+
+#In this case, I will keep every entry in pups_df. If for some reason there are entries in litters_df that are not in pups_df, then they will be dropped
+```
+
+Interesting join: 
+`r anti_join()` identifies which observations are not in the left hand side function. It allows you to figure out the differences between the two datasets. (It tells you what observations are not in the right hand side from the left hand side)
+
+
 
 
 
