@@ -8,6 +8,7 @@ date: "2025-09-24"
 
 ```{r}
 library(tidyverse)
+library(tidyr)
 library(readxl)
 library(haven)
 ```
@@ -46,12 +47,12 @@ first thing you'll notice is that youre data has a lot more rows (it's a lot lon
 
 When using pivot_longer, basically we created a column that contains the original values in that first header row that contained values of bdi_score_bl:bdi_score_12m, and we created an additional column that contained the values associated with each score. 
 
-When using `r values_to` almost always with a long transformation youll get big values in the visit/time variable/column transformation because you're getting these time values into a string. So, use `names_prefix` if there is an easy pattern to remove the bulk. Check what visit column values look like before and after this step by running only parts of the code at a time.
+When using `values_to` almost always with a long transformation youll get big values in the visit/time variable/column transformation because you're getting these time values into a string. So, use names_prefix if there is an easy pattern to remove the bulk. Check what visit column values look like before and after this step by running only parts of the code at a time.
 
 
 ### Let's do one more example
 Notes:
-when you are using `r read_csv` and are importing data, and setting a data path, you can use tab to get the file name easily!
+when you are using `read_csv` and are importing data, and setting a data path, you can use tab to get the file name easily!
 
 
 ```{r}
@@ -71,9 +72,9 @@ litters_df =
 
 #mutate() + case_match --> change values within gd_time
 ```
-`r case_match` --> there are a bunch of things that do this, but for this function you give it a variable, and then you give it a list of values of the old variable and then the new value that you want to replace it with using a tilda. 
+`case_match` --> there are a bunch of things that do this, but for this function you give it a variable, and then you give it a list of values of the old variable and then the new value that you want to replace it with using a tilda. 
 
-`r case_when` similar to `r case_match` better for several variables or for more complicated scenarios (you can use boolean questions and depending on the responses you can change the values)
+`case_when` similar to `case_match` better for several variables or for more complicated scenarios (you can use boolean questions and depending on the responses you can change the values)
 
 
 
@@ -127,11 +128,11 @@ return_king =
 #ideally you should not be copying and pasting --> in the future we'll learn functions to do this teeehee
 ```
 
-Because they have the same variables we can easily stack these dfs on top of one another using `r bind_rows`
+Because they have the same variables we can easily stack these dfs on top of one another using `bind_rows`
 
 ```{r}
 lotr_df = 
-  bind_rows(fellowship_rings, two_towers, Return_of_king) |> 
+  bind_rows(fellowship_ring, two_towers, return_king) |> 
   #If we were stop at this point, our data would be super untidy 
   janitor::clean_names() |> 
   pivot_longer(
@@ -150,7 +151,7 @@ lotr_df =
 
 Using a unique ID to make sure observations match one another
 
-#### Import `r litters` data set
+#### Import `litters` data set
 ```{r}
 litters_df=
   read_csv("data/FAS_litters.csv", na = c("NA", ".", "")) |> 
@@ -163,11 +164,11 @@ litters_df=
 
 #separate() --> Tidy-fy [group] variable. create two variables: one that identifies group # and one that categorizes (con, low, mod) 
 ```
-Note: `r separate()` takes the variable you want to separate, [ into = ] by writing the names of the new variables you are creating) and then [sep = ] how you are separating (by what delimiter or index you want to split by). 
+Note: ` separate()` takes the variable you want to separate, [ into = ] by writing the names of the new variables you are creating) and then [sep = ] how you are separating (by what delimiter or index you want to split by). 
 
 In our case, we are separating after the 3rd character. You could put a comma here or a different delimiter. Something that acts in a repeatable pattern.
 
-##### Import `r pups` next
+##### Import ` pups` next
 ```{r}
 pups_df=
   read_csv("data/FAS_pups.csv", skip = 3, na = c("NA", ".", "")) |> 
@@ -192,7 +193,7 @@ fas_df =
 ```
 
 Interesting join: 
-`r anti_join()` identifies which observations are not in the left hand side function. It allows you to figure out the differences between the two datasets. (It tells you what observations are not in the right hand side from the left hand side)
+` anti_join()` identifies which observations are not in the left hand side function. It allows you to figure out the differences between the two datasets. (It tells you what observations are not in the right hand side from the left hand side)
 
 
 
